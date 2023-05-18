@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		465022502A128CF7009862C9 /* Dependencies in Frameworks */ = {isa = PBXBuildFile; productRef = 4650224F2A128CF7009862C9 /* Dependencies */; };
+		465022532A128FEE009862C9 /* LocationClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 465022522A128FEE009862C9 /* LocationClient.swift */; };
 		46CF6B812A113239008400D2 /* CapuchinApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46CF6B802A113239008400D2 /* CapuchinApp.swift */; };
 		46CF6B832A113239008400D2 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46CF6B822A113239008400D2 /* ContentView.swift */; };
 		46CF6B852A11323C008400D2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 46CF6B842A11323C008400D2 /* Assets.xcassets */; };
@@ -14,6 +16,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		465022522A128FEE009862C9 /* LocationClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationClient.swift; sourceTree = "<group>"; };
 		46CF6B7D2A113239008400D2 /* Capuchin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Capuchin.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		46CF6B802A113239008400D2 /* CapuchinApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapuchinApp.swift; sourceTree = "<group>"; };
 		46CF6B822A113239008400D2 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -29,12 +32,21 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				465022502A128CF7009862C9 /* Dependencies in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		465022512A128FDF009862C9 /* Dependencies */ = {
+			isa = PBXGroup;
+			children = (
+				465022522A128FEE009862C9 /* LocationClient.swift */,
+			);
+			path = Dependencies;
+			sourceTree = "<group>";
+		};
 		46CF6B742A113239008400D2 = {
 			isa = PBXGroup;
 			children = (
@@ -57,6 +69,7 @@
 				46CF6B912A117CDB008400D2 /* Info.plist */,
 				46CF6B802A113239008400D2 /* CapuchinApp.swift */,
 				46CF6B822A113239008400D2 /* ContentView.swift */,
+				465022512A128FDF009862C9 /* Dependencies */,
 				46CF6B842A11323C008400D2 /* Assets.xcassets */,
 				46CF6B862A11323C008400D2 /* Capuchin.entitlements */,
 				46CF6B872A11323C008400D2 /* Preview Content */,
@@ -89,6 +102,9 @@
 			dependencies = (
 			);
 			name = Capuchin;
+			packageProductDependencies = (
+				4650224F2A128CF7009862C9 /* Dependencies */,
+			);
 			productName = Capuchin;
 			productReference = 46CF6B7D2A113239008400D2 /* Capuchin.app */;
 			productType = "com.apple.product-type.application";
@@ -117,6 +133,9 @@
 				Base,
 			);
 			mainGroup = 46CF6B742A113239008400D2;
+			packageReferences = (
+				4650224E2A128CF7009862C9 /* XCRemoteSwiftPackageReference "swift-dependencies" */,
+			);
 			productRefGroup = 46CF6B7E2A113239008400D2 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -144,6 +163,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				46CF6B832A113239008400D2 /* ContentView.swift in Sources */,
+				465022532A128FEE009862C9 /* LocationClient.swift in Sources */,
 				46CF6B812A113239008400D2 /* CapuchinApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -368,6 +388,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		4650224E2A128CF7009862C9 /* XCRemoteSwiftPackageReference "swift-dependencies" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-dependencies";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 0.5.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4650224F2A128CF7009862C9 /* Dependencies */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4650224E2A128CF7009862C9 /* XCRemoteSwiftPackageReference "swift-dependencies" */;
+			productName = Dependencies;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 46CF6B752A113239008400D2 /* Project object */;
 }
