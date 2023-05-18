@@ -59,7 +59,7 @@ final class ViewModel: ObservableObject {
     defer { self.gettingLocation = false }
 
     do {
-      let location = try await self.locationClient.getLocation()
+      let location = try await self.locationClient.getLocation(.hundredMeters)
       let place = Place(
         coordinates: .init(location)
       )

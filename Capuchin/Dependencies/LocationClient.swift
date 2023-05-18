@@ -12,7 +12,7 @@ public struct LocationClient: Sendable {
   public var authorizationStatus: @Sendable () -> CLAuthorizationStatus
   public var requestWhenInUseAuthorization: @Sendable () async -> CLAuthorizationStatus
   public var requestAlwaysAuthorization: @Sendable () async -> CLAuthorizationStatus
-  public var getLocation: @MainActor @Sendable () async throws -> CLLocationCoordinate2D
+  public var getLocation: @MainActor @Sendable (LocationAccuracy) async throws -> CLLocationCoordinate2D
 }
 
 extension DependencyValues {
@@ -22,9 +22,19 @@ extension DependencyValues {
   }
 }
 
+enum DelegateError: Swift.Error {
+  case deinitialized
+}
+
 final class LocationManagerDelegate: NSObject, CLLocationManagerDelegate {
-  private var locationContinuations = [CheckedContinuation<CLLocationCoordinate2D, any Error>]()
-  private var authorizationContinuations = [CheckedContinuation<CLAuthorizationStatus, Never>]()
+  private var locationContinuations: [CheckedContinuation<CLLocationCoordinate2D, any Error>] = []
+  private var authorizationContinuations: [CheckedContinuation<CLAuthorizationStatus, Never>] = []
+
+  deinit {
+    while !self.locationContinuations.isEmpty {
+      self.locationContinuations.removeFirst().resume(throwing: DelegateError.deinitialized)
+    }
+  }
 
   func registerLocationContinuation(_ continuation: CheckedContinuation<CLLocationCoordinate2D, any Error>) {
     self.locationContinuations.append(continuation)
@@ -55,6 +65,37 @@ final class LocationManagerDelegate: NSObject, CLLocationManagerDelegate {
     let status = manager.authorizationStatus
     while !self.authorizationContinuations.isEmpty {
       self.authorizationContinuations.removeFirst().resume(returning: status)
+    }
+  }
+}
+
+extension LocationClient {
+  public enum LocationAccuracy {
+    case bestForNavigation
+    case best
+    case nearestTenMeters
+    case hundredMeters
+    case kilometer
+    case threeKilometers
+    case reduced
+
+    var clLocationAccuracy: CLLocationAccuracy {
+      switch self {
+      case .bestForNavigation:
+        return kCLLocationAccuracyBestForNavigation
+      case .best:
+        return kCLLocationAccuracyBest
+      case .nearestTenMeters:
+        return kCLLocationAccuracyNearestTenMeters
+      case .hundredMeters:
+        return kCLLocationAccuracyHundredMeters
+      case .kilometer:
+        return kCLLocationAccuracyKilometer
+      case .threeKilometers:
+        return kCLLocationAccuracyThreeKilometers
+      case .reduced:
+        return kCLLocationAccuracyReduced
+      }
     }
   }
 }
@@ -93,25 +134,23 @@ extension LocationClient: DependencyKey {
           locationManager.requestAlwaysAuthorization()
         }
       },
-      getLocation: {
+      getLocation: { accuracy in
         let locationManager = CLLocationManager()
         let locationManagerDelegate = LocationManagerDelegate()
 
         locationManager.delegate = locationManagerDelegate
-//        locationManager.desiredAccuracy = kCLLocationAccuracyBest
-//        locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-        locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
+        locationManager.desiredAccuracy = accuracy.clLocationAccuracy
         locationManager.activityType = .fitness
 
-        #if !os(macOS)
-        let status = await requestWhenInUseAuthorization()
-        if !status.capuchin_isAuthorized {
-          throw LocationError.notAuthorized(status)
+        if !locationManager.authorizationStatus.capuchin_isAuthorized {
+          let status = await requestWhenInUseAuthorization()
+          if !status.capuchin_isAuthorized {
+            throw LocationError.notAuthorized(status)
+          }
         }
-        #endif
 
-        let location = try await withCheckedThrowingContinuation { [weak locationManagerDelegate] continuation in
-          locationManagerDelegate?.registerLocationContinuation(continuation)
+        let location = try await withCheckedThrowingContinuation { continuation in
+          locationManagerDelegate.registerLocationContinuation(continuation)
           locationManager.requestLocation()
         }
 
@@ -136,13 +175,12 @@ extension LocationClient: DependencyKey {
       authorizationStatus: { authorized },
       requestWhenInUseAuthorization: { authorized },
       requestAlwaysAuthorization: { authorized },
-      getLocation: {
+      getLocation: { _ in
         // Coordinates of the "Dame du Lac" spot in Lisses, France
         CLLocationCoordinate2D(latitude: 48.61739, longitude: 2.41905)
       }
     )
   }
-
 
   public static let testValue = LocationClient(
     authorizationStatus: unimplemented("LocationClient.authorizationStatus", placeholder: .denied),
