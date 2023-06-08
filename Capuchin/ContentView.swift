@@ -7,6 +7,7 @@
 
 import CoreLocation
 import Dependencies
+import _LocationDependency
 import MapKit
 import SwiftUI
 
@@ -46,6 +47,7 @@ extension CLAuthorizationStatus {
 }
 
 final class ViewModel: ObservableObject {
+  @Dependency(\.locationManager) var locationManager
   @Dependency(\.locationClient) var locationClient
 
   @Published var places: [Place] = []
@@ -53,13 +55,18 @@ final class ViewModel: ObservableObject {
 
   @Published var region = MKCoordinateRegion(.world)
 
+  init() {
+    self.locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
+    self.locationManager.activityType = .fitness
+  }
+
   @MainActor
   func markMyLocationTapped() async {
     self.gettingLocation = true
     defer { self.gettingLocation = false }
 
     do {
-      let location = try await self.locationClient.getLocation(.hundredMeters)
+      let location = try await self.locationClient.getLocation()
       let place = Place(
         coordinates: .init(location)
       )
