@@ -23,8 +23,17 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-dependencies",
       "state" : {
-        "revision" : "25c9b6789b4b7ada649a3808e6d8de1489082a33",
-        "version" : "0.5.0"
+        "revision" : "de1a984a71e51f6e488e98ce3652035563eb8acb",
+        "version" : "0.5.1"
+      }
+    },
+    {
+      "identity" : "swift-dependencies-additions",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/RemiBardon/swift-dependencies-additions",
+      "state" : {
+        "branch" : "location-dependency",
+        "revision" : "d08d7daf54d13a76c0c5f4c66382b5816c3c22ee"
       }
     },
     {

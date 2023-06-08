@@ -7,6 +7,7 @@
 
 import CoreLocation
 import Dependencies
+import _LocationDependency
 import MapKit
 import SwiftUI
 
@@ -33,7 +34,7 @@ enum LocationError: Error {
 }
 
 extension CLAuthorizationStatus {
-  var capuchin_isAuthorized: Bool {
+  var cn_isAuthorized: Bool {
     switch self {
     case .authorized, .authorizedAlways, .authorizedWhenInUse:
       return true
@@ -46,12 +47,24 @@ extension CLAuthorizationStatus {
 }
 
 final class ViewModel: ObservableObject {
+  @Dependency(\.locationManager) var locationManager
   @Dependency(\.locationClient) var locationClient
 
   @Published var places: [Place] = []
   @Published var gettingLocation = false
 
-  @Published var region = MKCoordinateRegion(.world)
+  @Published var desiredAccuracy: CLLocationAccuracy = kCLLocationAccuracyHundredMeters {
+    didSet {
+      self.locationManager.desiredAccuracy = self.desiredAccuracy
+    }
+  }
+
+  @Published var mapPosition = MapCameraPosition.userLocation(fallback: .region(MKCoordinateRegion(.world)))
+
+  init() {
+    self.locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
+    self.locationManager.activityType = .fitness
+  }
 
   @MainActor
   func markMyLocationTapped() async {
@@ -59,7 +72,7 @@ final class ViewModel: ObservableObject {
     defer { self.gettingLocation = false }
 
     do {
-      let location = try await self.locationClient.getLocation(.hundredMeters)
+      let location = try await self.locationClient.getLocation()
       let place = Place(
         coordinates: .init(location)
       )
@@ -76,17 +89,20 @@ struct ContentView: View {
   var body: some View {
     VStack {
       placesMap()
-      markLocationButton()
+      VStack {
+        markLocationButton()
+        desiredAccuracyPicker()
+      }
+      .padding()
     }
   }
 
   func placesMap() -> some View {
-    Map(
-      coordinateRegion: self.$viewModel.region,
-      showsUserLocation: true,
-      annotationItems: self.viewModel.places
-    ) { place in
-      MapMarker(coordinate: place.coordinates.clLocationCoordinate2D)
+    Map(position: self.$viewModel.mapPosition) {
+      UserAnnotation()
+      ForEach(self.viewModel.places) { place in
+        Marker("", coordinate: place.coordinates.clLocationCoordinate2D)
+      }
     }
   }
 
@@ -106,7 +122,18 @@ struct ContentView: View {
     }
     .buttonStyle(.borderedProminent)
     .disabled(self.viewModel.gettingLocation)
-    .padding()
+  }
+
+  func desiredAccuracyPicker() -> some View {
+    Picker("Desired accuracy", selection: self.$viewModel.desiredAccuracy) {
+      Text("Best")
+        .tag(kCLLocationAccuracyBest)
+      Text("100 meters")
+        .tag(kCLLocationAccuracyHundredMeters)
+      Text("Approx.")
+        .tag(kCLLocationAccuracyReduced)
+    }
+    .pickerStyle(.segmented)
   }
 }
 
