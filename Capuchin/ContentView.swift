@@ -17,7 +17,11 @@ struct ContentView: View {
   var body: some View {
     VStack {
       placesMap()
-      markLocationButton()
+      VStack {
+        markLocationButton()
+        desiredAccuracyPicker()
+      }
+      .padding()
     }
   }
 
@@ -49,6 +53,18 @@ struct ContentView: View {
     .disabled(self.viewModel.gettingLocation)
     .padding()
   }
+
+  func desiredAccuracyPicker() -> some View {
+    Picker("Desired accuracy", selection: self.$viewModel.desiredAccuracy) {
+      Text("Best")
+        .tag(kCLLocationAccuracyBest)
+      Text("100 meters")
+        .tag(kCLLocationAccuracyHundredMeters)
+      Text("Approx.")
+        .tag(kCLLocationAccuracyReduced)
+    }
+    .pickerStyle(.segmented)
+  }
 }
 
 extension ContentView {
@@ -56,13 +72,19 @@ extension ContentView {
     @Dependency(\.locationManager) var locationManager
     @Dependency(\.locationClient) var locationClient
 
+    @AppStorage("desiredAccuracy") var desiredAccuracy: CLLocationAccuracy = kCLLocationAccuracyHundredMeters {
+      didSet {
+        self.locationManager.desiredAccuracy = self.desiredAccuracy
+      }
+    }
+
     @Published var places: [Place] = []
     @Published var gettingLocation = false
 
     @Published var region = MKCoordinateRegion(.world)
 
     init() {
-      self.locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
+      self.locationManager.desiredAccuracy = self.desiredAccuracy
       self.locationManager.activityType = .fitness
     }
 
