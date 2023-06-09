@@ -11,24 +11,6 @@ import _LocationDependency
 import MapKit
 import SwiftUI
 
-struct Coordinates {
-  let latitude, longitude: Double
-
-  var clLocationCoordinate2D: CLLocationCoordinate2D {
-    .init(latitude: self.latitude, longitude: self.longitude)
-  }
-
-  init(_ coordinates: CLLocationCoordinate2D) {
-    self.latitude = coordinates.latitude
-    self.longitude = coordinates.longitude
-  }
-}
-
-struct Place: Identifiable {
-  let id = UUID()
-  let coordinates: Coordinates
-}
-
 final class ViewModel: ObservableObject {
   @Dependency(\.locationManager) var locationManager
   @Dependency(\.locationClient) var locationClient
