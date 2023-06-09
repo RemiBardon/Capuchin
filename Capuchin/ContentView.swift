@@ -29,23 +29,6 @@ struct Place: Identifiable {
   let coordinates: Coordinates
 }
 
-enum LocationError: Error {
-  case noLocation, notAuthorized(CLAuthorizationStatus), error(CLError)
-}
-
-extension CLAuthorizationStatus {
-  var capuchin_isAuthorized: Bool {
-    switch self {
-    case .authorized, .authorizedAlways, .authorizedWhenInUse:
-      return true
-    case .denied, .notDetermined, .restricted:
-      return false
-    @unknown default:
-      return false
-    }
-  }
-}
-
 final class ViewModel: ObservableObject {
   @Dependency(\.locationManager) var locationManager
   @Dependency(\.locationClient) var locationClient
