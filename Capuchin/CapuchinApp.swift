@@ -6,12 +6,14 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct CapuchinApp: App {
   var body: some Scene {
     WindowGroup {
-      ContentView()
+      MapList()
     }
+    .modelContainer(for: CNMap.self)
   }
 }
